@@ -26,8 +26,4 @@ class IndexView(generic.ListView):
         if department:
             queryset = queryset.filter(department=department)
 
-        # サークルの選択があれば、サークルで絞り込み(filter)
-        club = form.cleaned_data['club']
-        if club:
-            queryset = queryset.filter(club=club)
         return queryset
