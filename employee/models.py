@@ -1,66 +1,76 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
 
-class DTE(models.Model):
-    name = models.CharField("DTE", max_length=20)
-    created_at = models.DateTimeField("日付", default=timezone.now)
-
-    def __str__(self):
-        return self.name
-
-
 class Employee(models.Model):
-    eid = models.CharField("EID", max_length=10, primary_key=True)
-    eno = models.CharField("社員番号", max_length=10)
-    first_name = models.CharField(
-        "名",
-        max_length=20,
+    eid = models.CharField("EID", max_length=50, primary_key=True)
+    eno = models.CharField(
+        "Employee No.", max_length=8, unique=True, default="000000000"
     )
-    middle_name = models.CharField("ミドル", max_length=20, blank=True)
-    last_name = models.CharField("姓", max_length=20)
+    first_name = models.CharField(
+        "First Name",
+        max_length=20,
+        default="XXXX",
+    )
+    middle_name = models.CharField("Middle Name", max_length=20, blank=True)
+    last_name = models.CharField("Last Name", max_length=20, default="YYYY")
     full_name = models.CharField(
-        "氏名", max_length=50, default=f"{first_name} {middle_name} {last_name}"
+        "Name", max_length=50, default=f"{first_name} {middle_name} {last_name}"
     )
     email = models.EmailField("e-mail", blank=True, default=f"{eid}@accenture.com")
-    dte = models.ForeignKey(
-        DTE,
-        verbose_name="DTE",
-        on_delete=models.PROTECT,
-    )
-    office = models.CharField("オフィス", max_length=20, blank=True)
-    created_at = models.DateTimeField("登録日", default=timezone.now)
+    dte = models.CharField("DTE", max_length=10, default="XXXX")
+    office = models.CharField("Office", max_length=20, default="AIR")
+    created_at = models.DateTimeField("Resister Date", auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.eid:
+            base_eid = f"{self.first_name.lower()}.{self.last_name.lower()}"
+            eid = base_eid
+            counter = 0
+
+            while Employee.objects.filter(eid=eid).exists():
+                counter += 1
+                eid = f"{base_eid}.{chr(64 + counter)}"  # A, B, C, ...
+
+            self.eid = eid
+
+        super(Employee, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.last_name, self.first_name, self.dte)
+        return "{0} {1} {2}".format(self.eid, self.full_name, self.dte)
 
 
 class Project(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField("プロジェクト名", max_length=50)
-
-    start_date = models.DateTimeField("開始日", default=timezone.now)
-    end_date = models.DateTimeField("終了日", blank=True, null=True)
-    description = models.TextField("プロジェクトの詳細", blank=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    name = models.CharField("Project Name", max_length=50)
+    start_date = models.DateTimeField("Start Date", default=timezone.now)
+    end_date = models.DateTimeField("End Date", blank=True, null=True)
+    description = models.TextField("Project Detail", blank=True)
+    created_at = models.DateTimeField()
 
     def __str__(self):
         return self.name
 
 
 class Skill(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     level = models.CharField(max_length=10)
 
 
 class Training(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     completion_date = models.DateField()
 
 
 class History(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     completion_date = models.DateField()
