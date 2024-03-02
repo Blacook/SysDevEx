@@ -1,0 +1,23 @@
+# バイトコードファイル
+__pycache__/
+*.pyc
+
+# 仮想環境
+venv/
+
+# IDE設定
+.vscode/
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# ログファイル
+*.log
+
+# ビルドディレクトリ
+build/
+dist/
+
+# その他のプロジェクト固有の無視したいファイル
+
