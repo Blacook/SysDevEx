@@ -1,14 +1,9 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views import generic
-from django.views.generic import ListView
-from django.views.generic.detail import DetailView
 
-from .forms import SearchForm
-from .models import Employee
+from .forms import EmployeeUpdateForm, SearchForm
+from .models import Employee, Skill, Training
 
 
 class UserLoginView(LoginView):
@@ -16,16 +11,37 @@ class UserLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy("list")  # ログイン後にリダイレクトするURL
+        return reverse_lazy("employee:list")  # ログイン後にリダイレクトするURL
 
 
-class EmployeeDetailView(DetailView):
+class EmployeeDetailView(generic.DetailView):
     model = Employee
+
     template_name = "employee_detail.html"
 
-    def get_object(self):
-        eid = self.kwargs.get("eid")
-        return Employee.objects.get(eid=eid)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee = self.get_object()
+        context["skills"] = Skill.objects.filter(employee=employee)
+        context["trainings"] = Training.objects.filter(employee=employee)
+        return context
+
+
+class EmployeeAddView(generic.CreateView):
+    model = Employee
+    form_class = EmployeeUpdateForm
+    success_url = reverse_lazy("employee:index")
+
+
+class EmployeeUpdateView(generic.UpdateView):
+    model = Employee
+    form_class = EmployeeUpdateForm
+    success_url = reverse_lazy("employee:index")
+
+
+class EmployeeDeleteView(generic.DeleteView):
+    model = Employee
+    success_url = reverse_lazy("employee:index")
 
 
 class IndexView(generic.ListView):

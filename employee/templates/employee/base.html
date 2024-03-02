@@ -33,7 +33,10 @@
                         <a class="nav-link" href="{% url 'employee:index' %}">社員一覧</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'admin:employee_employee_add' %}">社員追加</a>
+                        <a class="nav-link" href="{% url 'employee:add_employee' %}">社員追加</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:employee_employee_add' %}">管理者権限</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'employee:logout' %}">ログアウト</a>
