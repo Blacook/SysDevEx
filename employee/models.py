@@ -8,7 +8,7 @@ from django.utils import timezone
 class Employee(models.Model):
     eid = models.CharField("EID", max_length=50, primary_key=True)
     eno = models.CharField(
-        "Employee No.", max_length=8, unique=True, default="000000000"
+        "Employee No.", max_length=8, unique=True, default="00000000"
     )
     first_name = models.CharField(
         "First Name",
@@ -17,10 +17,8 @@ class Employee(models.Model):
     )
     middle_name = models.CharField("Middle Name", max_length=20, blank=True)
     last_name = models.CharField("Last Name", max_length=20, default="YYYY")
-    full_name = models.CharField(
-        "Name", max_length=50, default=f"{first_name} {middle_name} {last_name}"
-    )
-    email = models.EmailField("e-mail", blank=True, default=f"{eid}@accenture.com")
+    full_name = models.CharField("Name", max_length=50)
+    email = models.EmailField("e-mail", blank=True)
     dte = models.CharField("DTE", max_length=10, default="XXXX")
     office = models.CharField("Office", max_length=20, default="AIR")
     created_at = models.DateTimeField("Resister Date", auto_now_add=True)
@@ -36,6 +34,8 @@ class Employee(models.Model):
                 eid = f"{base_eid}.{chr(64 + counter)}"  # A, B, C, ...
 
             self.eid = eid
+            self.email = f"{self.eid}@accenture.com"
+            self.full_name = f"{self.first_name} {self.middle_name} {self.last_name}"
 
         super(Employee, self).save(*args, **kwargs)
 
