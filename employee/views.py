@@ -1,13 +1,11 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
-from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import EmployeeForm, SkillForm, TrainingForm
+from .forms import EmployeeForm, SkillForm
 from .models import Employee, Skill, Training
+from .views_common import BaseView, EIDMixin, SuccessUrlMixin
 
 
 class UserRegisterView(CreateView):
@@ -21,22 +19,15 @@ class UserRegisterView(CreateView):
         return valid
 
 
-@method_decorator(login_required, name="dispatch")
-class IndexView(generic.ListView):
+class IndexView(BaseView, generic.ListView):
     model = Employee
-    paginate_by = 10
+    paginate_by = 5
     template_name = "employee_list.html"
 
 
-@method_decorator(login_required, name="dispatch")
-class EmployeeDetailView(generic.DetailView):
+class EmployeeDetailView(BaseView, EIDMixin, generic.DetailView):
     model = Employee
     template_name = "employee/employee_detail.html"
-
-    def get_object(self):
-        # Use 'eid' from the URL kwargs to fetch the Employee instance
-        eid = self.kwargs.get("eid")
-        return get_object_or_404(Employee, eid=eid)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -46,74 +37,52 @@ class EmployeeDetailView(generic.DetailView):
         return context
 
 
-@method_decorator(login_required, name="dispatch")
-class EmployeeAddView(generic.CreateView):
+class EmployeeAddView(BaseView, generic.CreateView):
     model = Employee
     form_class = EmployeeForm
     template_name = "employee/employee_form.html"
     success_url = reverse_lazy("employee:index")
 
 
-@method_decorator(login_required, name="dispatch")
-class EmployeeUpdateView(generic.UpdateView):
+class EmployeeUpdateView(BaseView, EIDMixin, generic.UpdateView):
     model = Employee
     form_class = EmployeeForm
     template_name = "employee/employee_form.html"
-    success_url = reverse_lazy("employee:index")
-
-    def get_object(self, queryset=None):
-        """URLからeidを取得し、それに基づいてEmployeeオブジェクトを返す"""
-        eid = self.kwargs.get("eid")
-        return get_object_or_404(Employee, eid=eid)
 
     def get_success_url(self):
         """更新が成功した後のリダイレクト先URLを指定"""
-        employee = self.get_object()
-        return reverse("employee:detail", kwargs={"eid": employee.eid})
+        return reverse_lazy("employee:detail", kwargs={"eid": self.get_object().eid})
 
 
-@method_decorator(login_required, name="dispatch")
-class EmployeeDeleteView(generic.DeleteView):
+class EmployeeDeleteView(BaseView, generic.DeleteView):
     model = Employee
     success_url = reverse_lazy("employee:index")
 
 
-@method_decorator(login_required, name="dispatch")
-class SkillAddView(generic.CreateView):
+class SkillAddView(BaseView, generic.CreateView):
     model = Skill
-    template_name = "employee/skill_form.html"
     form_class = SkillForm
+    template_name = "employee/skill_form.html"
 
     def get_initial(self):
         initial = super().get_initial()
         # URLからeidを取得し、対応するEmployeeオブジェクトを検索
         eid = self.kwargs.get("eid")
-        employee = get_object_or_404(Employee, eid=eid)
         # EmployeeオブジェクトのIDをemployeeフィールドの初期値として設定
-        initial["employee"] = employee.eid
+        initial["employee"] = eid
         return initial
 
     def get_success_url(self):
-        # 成功時には、追加されたSkillが紐づいているEmployeeの詳細ページに戻る
         eid = self.kwargs.get("eid")
         return reverse_lazy("employee:detail", kwargs={"eid": eid})
 
 
-@method_decorator(login_required, name="dispatch")
-class SkillUpdateView(UpdateView):
+class SkillUpdateView(BaseView, SuccessUrlMixin, UpdateView):
     model = Skill
     form_class = SkillForm
     template_name = "employee/skill_form.html"
 
-    def get_success_url(self):
-        # 成功時には、更新されたSkillが紐づいているEmployeeの詳細ページに戻る
-        # この場合、Skillオブジェクトから関連するEmployeeのeidを取得しています
-        skill = self.get_object()
-        return reverse_lazy("employee:detail", kwargs={"eid": skill.employee.eid})
 
-
-@method_decorator(login_required, name="dispatch")
-class SkillDeleteView(generic.DeleteView):
+class SkillDeleteView(BaseView, SuccessUrlMixin, generic.DeleteView):
     model = Skill
     form_class = SkillForm
-    success_url = reverse_lazy("employee:index")
