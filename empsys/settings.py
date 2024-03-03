@@ -70,6 +70,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "empsys.wsgi.application"
 
+LOGIN_REDIRECT_URL = "employee:index"
+LOGOUT_REDIRECT_URL = "employee:login"
+# セッションが有効な時間（秒単位）。例えば、30分は1800秒。
+SESSION_COOKIE_AGE = 1800
+# セッションの有効期限がブラウザを閉じるたびにリセットされるかどうか
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

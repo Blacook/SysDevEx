@@ -1,0 +1,34 @@
+{% extends 'format/base.html' %}
+
+{% block content %}
+<form action="" method="POST">
+    <table class="table">
+        <tr>
+            <th>EID</th>
+            <td>{{ form.eid }}</td>
+        </tr>
+        <tr>
+            <th>社員番号</th>
+            <td>{{ form.eno }}</td>
+        </tr>
+        <tr>
+            <th>名</th>
+            <td>{{ form.first_name }}</td>
+        </tr>
+        <tr>
+            <th>姓</th>
+            <td>{{ form.last_name }}</td>
+        </tr>
+        <tr>
+            <th>DTE</th>
+            <td>{{ form.dte }}</td>
+        </tr>
+        <tr>
+            <th>所属オフィス</th>
+            <td>{{ form.office }}</td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-primary">送信</button>
+    {% csrf_token %}
+</form>
+{% endblock %}
