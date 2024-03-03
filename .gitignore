@@ -14,10 +14,12 @@ Thumbs.db
 
 # ログファイル
 *.log
+dirtree*
 
 # ビルドディレクトリ
 build/
 dist/
 
 # その他のプロジェクト固有の無視したいファイル
-
+db.sqlite3
+migrations/
