@@ -1,8 +1,10 @@
-import uuid
-
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+
+def get_or_create_eid():
+    employee, _ = Employee.objects.get_or_create(eid="XXXX.YYYY")
+    return employee
 
 
 class Employee(models.Model):
@@ -40,15 +42,15 @@ class Employee(models.Model):
         super(Employee, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.eid, self.full_name, self.dte)
+        return self.eid
 
 
 class Project(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    name = models.CharField("Project Name", max_length=50)
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField("Project Name", max_length=50, default="XXXX")
     start_date = models.DateTimeField("Start Date", default=timezone.now)
     end_date = models.DateTimeField("End Date", blank=True, null=True)
-    description = models.TextField("Project Detail", blank=True)
+    description = models.TextField("Project Detail", blank=True, null=True)
     created_at = models.DateTimeField()
 
     def __str__(self):
@@ -57,20 +59,28 @@ class Project(models.Model):
 
 class Skill(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    level = models.CharField(max_length=10)
+    name = models.CharField("Skill Name", max_length=100, default="XXXX")
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.PROTECT,
+        to_field="eid",
+        related_name="skills",
+        default=get_or_create_eid,
+    )
+    level = models.CharField(max_length=2, blank=True, null=True)
+    aquire_date = models.DateField(blank=True, null=True)
+    expire_date = models.DateField(blank=True, null=True)
+    need_update = models.BooleanField(default=False)
 
 
 class Training(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    completion_date = models.DateField()
-
-
-class History(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    completion_date = models.DateField()
+    name = models.CharField(max_length=100, default="XXXX")
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.PROTECT,
+        to_field="eid",
+        related_name="trainings",
+        default=get_or_create_eid,
+    )
+    completion_date = models.DateField(blank=True, null=True)
