@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import generic
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import EmployeeForm, SearchForm
+from .forms import EmployeeForm, SkillForm, TrainingForm
 from .models import Employee, Skill, Training
 
 
@@ -19,6 +19,13 @@ class UserRegisterView(CreateView):
         valid = super().form_valid(form)
         # ここで追加の処理を行うことができます（例えばユーザーにメールを送信する等）
         return valid
+
+
+@method_decorator(login_required, name="dispatch")
+class IndexView(generic.ListView):
+    model = Employee
+    paginate_by = 10
+    template_name = "employee_list.html"
 
 
 @method_decorator(login_required, name="dispatch")
@@ -42,8 +49,8 @@ class EmployeeDetailView(generic.DetailView):
 @method_decorator(login_required, name="dispatch")
 class EmployeeAddView(generic.CreateView):
     model = Employee
-    template_name = "employee/employee_form.html"
     form_class = EmployeeForm
+    template_name = "employee/employee_form.html"
     success_url = reverse_lazy("employee:index")
 
 
@@ -51,7 +58,18 @@ class EmployeeAddView(generic.CreateView):
 class EmployeeUpdateView(generic.UpdateView):
     model = Employee
     form_class = EmployeeForm
+    template_name = "employee/employee_form.html"
     success_url = reverse_lazy("employee:index")
+
+    def get_object(self, queryset=None):
+        """URLからeidを取得し、それに基づいてEmployeeオブジェクトを返す"""
+        eid = self.kwargs.get("eid")
+        return get_object_or_404(Employee, eid=eid)
+
+    def get_success_url(self):
+        """更新が成功した後のリダイレクト先URLを指定"""
+        employee = self.get_object()
+        return reverse("employee:detail", kwargs={"eid": employee.eid})
 
 
 @method_decorator(login_required, name="dispatch")
@@ -61,28 +79,41 @@ class EmployeeDeleteView(generic.DeleteView):
 
 
 @method_decorator(login_required, name="dispatch")
-class IndexView(generic.ListView):
-    model = Employee
-    paginate_by = 10
-    template_name = "employee_list.html"
+class SkillAddView(generic.CreateView):
+    model = Skill
+    template_name = "employee/skill_form.html"
+    form_class = SkillForm
 
-    def get_context_data(self):
-        """テンプレートへ渡す辞書の作成"""
-        context = super().get_context_data()
-        context["form"] = SearchForm(self.request.GET)  # 基の辞書に、formを追加
-        return context
+    def get_initial(self):
+        initial = super().get_initial()
+        # URLからeidを取得し、対応するEmployeeオブジェクトを検索
+        eid = self.kwargs.get("eid")
+        employee = get_object_or_404(Employee, eid=eid)
+        # EmployeeオブジェクトのIDをemployeeフィールドの初期値として設定
+        initial["employee"] = employee.eid
+        return initial
 
-    def get_queryset(self):
-        """テンプレートへ渡す「employee_list」を作成する"""
-        form = SearchForm(self.request.GET)
-        form.is_valid()  # これをしないと、cleaned_dataができない!!!
+    def get_success_url(self):
+        # 成功時には、追加されたSkillが紐づいているEmployeeの詳細ページに戻る
+        eid = self.kwargs.get("eid")
+        return reverse_lazy("employee:detail", kwargs={"eid": eid})
 
-        # まず、全社員を取得
-        queryset = super().get_queryset()
 
-        # 部署の選択があれば、部署で絞り込み(filter)
-        department = form.cleaned_data["department"]
-        if department:
-            queryset = queryset.filter(department=department)
+@method_decorator(login_required, name="dispatch")
+class SkillUpdateView(UpdateView):
+    model = Skill
+    form_class = SkillForm
+    template_name = "employee/skill_form.html"
 
-        return queryset
+    def get_success_url(self):
+        # 成功時には、更新されたSkillが紐づいているEmployeeの詳細ページに戻る
+        # この場合、Skillオブジェクトから関連するEmployeeのeidを取得しています
+        skill = self.get_object()
+        return reverse_lazy("employee:detail", kwargs={"eid": skill.employee.eid})
+
+
+@method_decorator(login_required, name="dispatch")
+class SkillDeleteView(generic.DeleteView):
+    model = Skill
+    form_class = SkillForm
+    success_url = reverse_lazy("employee:index")

@@ -68,7 +68,7 @@ class Skill(models.Model):
         default=get_or_create_eid,
     )
     level = models.CharField(max_length=2, blank=True, null=True)
-    aquire_date = models.DateField(blank=True, null=True)
+    acquire_date = models.DateField(blank=True, null=True)
     expire_date = models.DateField(blank=True, null=True)
     need_update = models.BooleanField(default=False)
 

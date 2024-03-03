@@ -1,0 +1,11 @@
+{% extends 'format/base.html' %}
+
+{% block content %}
+<h4>スキル追加</h4>
+<form action="" method="POST">
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">送信</button>
+    {% csrf_token %}
+</form>
+{% endblock %}
