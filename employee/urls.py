@@ -11,7 +11,7 @@ urlpatterns = [
     path("register/", UserRegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("add/employee", views.EmployeeAddView.as_view(), name="add_employee"),
+    path("add/employee/", views.EmployeeAddView.as_view(), name="add_employee"),
     path(
         "update/<str:eid>/", views.EmployeeUpdateView.as_view(), name="update_employee"
     ),

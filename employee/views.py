@@ -1,13 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .forms import EmployeeUpdateForm, SearchForm
+from .forms import EmployeeForm, SearchForm
 from .models import Employee, Skill, Training
 
 
@@ -20,14 +19,6 @@ class UserRegisterView(CreateView):
         valid = super().form_valid(form)
         # ここで追加の処理を行うことができます（例えばユーザーにメールを送信する等）
         return valid
-
-
-""" class UserLoginView(LoginView):
-    template_name = "employee/login.html"
-    redirect_authenticated_user = True
-
-    def get_success_url(self):
-        return reverse_lazy("employee:list")  # ログイン後にリダイレクトするURL """
 
 
 @method_decorator(login_required, name="dispatch")
@@ -52,14 +43,14 @@ class EmployeeDetailView(generic.DetailView):
 class EmployeeAddView(generic.CreateView):
     model = Employee
     template_name = "employee/employee_form.html"
-    form_class = EmployeeUpdateForm
+    form_class = EmployeeForm
     success_url = reverse_lazy("employee:index")
 
 
 @method_decorator(login_required, name="dispatch")
 class EmployeeUpdateView(generic.UpdateView):
     model = Employee
-    form_class = EmployeeUpdateForm
+    form_class = EmployeeForm
     success_url = reverse_lazy("employee:index")
 
 
