@@ -1,10 +1,7 @@
 {% extends 'employee/base.html' %}
 
 {% block content %}
-<form action="" method="GET">
-    {{ form }}
-    <button type="submit">検索</button>
-</form>
+<h4>社員一覧</h4>
 <table class="table table-bordered mt-4">
     <thead>
         <tr>
@@ -19,7 +16,7 @@
         {% for employee in employee_list %}
         <tr>
             <td>
-                <a href="{% url 'employee:detail' employee.pk %}">{{ employee.eid }}</a>
+                <a href="{% url 'employee:detail' employee.eid %}">{{ employee.eid }}</a>
             </td>
             <td>{{ employee.last_name }}</td>
             <td>{{ employee.first_name }}</td>

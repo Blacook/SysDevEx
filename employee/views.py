@@ -1,4 +1,5 @@
 from django.contrib.auth.views import LoginView
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -7,7 +8,7 @@ from .models import Employee, Skill, Training
 
 
 class UserLoginView(LoginView):
-    template_name = "login.html"
+    template_name = "employee/login.html"
     redirect_authenticated_user = True
 
     def get_success_url(self):
@@ -16,8 +17,12 @@ class UserLoginView(LoginView):
 
 class EmployeeDetailView(generic.DetailView):
     model = Employee
+    template_name = "employee/employee_detail.html"
 
-    template_name = "employee_detail.html"
+    def get_object(self):
+        # Use 'eid' from the URL kwargs to fetch the Employee instance
+        eid = self.kwargs.get("eid")
+        return get_object_or_404(Employee, eid=eid)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

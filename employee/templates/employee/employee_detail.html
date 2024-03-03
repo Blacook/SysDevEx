@@ -1,5 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'employee/base.html' %}
 
 {% block content %}
-<h2>Employee Detail - {{ object.name }}</h2>
+<h2>EID: {{ employee.eid }}</h2>
+<!-- employee.eid を直接表示 -->
+<h3>
+    個人基本情報
+</h3>
+<ul>
+    <!-- DetailView では単一のオブジェクトを扱うので、ループ不要 -->
+    <li>名前: {{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}</li>
+    <li>フルネーム: {{ employee.full_name }}</li>
+    <li>Eメール: {{ employee.email }}</li>
+    <li>DTE: {{ employee.dte }}</li>
+    <li>オフィス: {{ employee.office }}</li>
+    <li>登録日: {{ employee.created_at }}</li>
+</ul>
+<h3>スキル情報</h3>
+<ul>
+    {% for skill in skills %}
+    <li>{{ skill.name }}: Level {{ skill.level }}</li>
+    {% endfor %}
+</ul>
+<h3>トレーニング情報</h3>
+<ul>
+    {% for training in trainings %}
+    <li>{{ training.name }} - 完了日: {{ training.completion_date }}</li>
+    {% endfor %}
+</ul>
 {% endblock %}
