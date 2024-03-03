@@ -49,6 +49,8 @@ python3 -m pip freeze > requirements.txt
 ```
 3. アプリの起動
 ```bash
+# DB変更を管理するmigrationsディレクトリの作成（初回のみ）
+python manage.py makemigrations employee
 # DBのマイグレーション実行（DB変更時のみ）
 python manage.py migrate
 ```
