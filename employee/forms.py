@@ -1,16 +1,22 @@
 from django import forms
 
-from .models import Employee
+from .models import Employee, Skill, Training
 
 
-class EmployeeUpdateForm(forms.ModelForm):
+class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = "__all__"
 
 
-class SearchForm(forms.Form):
+class SkillForm(forms.ModelForm):
+    class Meta:
+        model = Skill
+        fields = "__all__"
+        widgets = {"employee": forms.HiddenInput()}
 
-    department = forms.ModelChoiceField(
-        queryset=Employee.objects, label="DTE", required=False
-    )
+
+class TrainingForm(forms.ModelForm):
+    class Meta:
+        model = Training
+        fields = "__all__"
