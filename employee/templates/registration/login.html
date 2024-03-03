@@ -1,0 +1,12 @@
+{% block content %}
+<div class="container">
+    <h2>社員管理システム</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">ログイン</button>
+    </form>
+    <!-- 新規ユーザ登録へのリンク -->
+    <a href="{% url 'employee:register' %}">新規登録</a>
+</div>
+{% endblock %}

@@ -70,7 +70,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "empsys.wsgi.application"
 
-# LOGOUT_REDIRECT_URL = "login"
+LOGIN_REDIRECT_URL = "employee:index"
+LOGOUT_REDIRECT_URL = "employee:login"
 # セッションが有効な時間（秒単位）。例えば、30分は1800秒。
 SESSION_COOKIE_AGE = 1800
 # セッションの有効期限がブラウザを閉じるたびにリセットされるかどうか

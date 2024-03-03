@@ -1,20 +1,36 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.generic.edit import CreateView
 
 from .forms import EmployeeUpdateForm, SearchForm
 from .models import Employee, Skill, Training
 
 
-class UserLoginView(LoginView):
+class UserRegisterView(CreateView):
+    form_class = UserCreationForm
+    template_name = "registration/register.html"
+    success_url = reverse_lazy("employee:login")  # 登録後にログインページにリダイレクト
+
+    def form_valid(self, form):
+        valid = super().form_valid(form)
+        # ここで追加の処理を行うことができます（例えばユーザーにメールを送信する等）
+        return valid
+
+
+""" class UserLoginView(LoginView):
     template_name = "employee/login.html"
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy("employee:list")  # ログイン後にリダイレクトするURL
+        return reverse_lazy("employee:list")  # ログイン後にリダイレクトするURL """
 
 
+@method_decorator(login_required, name="dispatch")
 class EmployeeDetailView(generic.DetailView):
     model = Employee
     template_name = "employee/employee_detail.html"
@@ -32,23 +48,28 @@ class EmployeeDetailView(generic.DetailView):
         return context
 
 
+@method_decorator(login_required, name="dispatch")
 class EmployeeAddView(generic.CreateView):
     model = Employee
+    template_name = "employee/employee_form.html"
     form_class = EmployeeUpdateForm
     success_url = reverse_lazy("employee:index")
 
 
+@method_decorator(login_required, name="dispatch")
 class EmployeeUpdateView(generic.UpdateView):
     model = Employee
     form_class = EmployeeUpdateForm
     success_url = reverse_lazy("employee:index")
 
 
+@method_decorator(login_required, name="dispatch")
 class EmployeeDeleteView(generic.DeleteView):
     model = Employee
     success_url = reverse_lazy("employee:index")
 
 
+@method_decorator(login_required, name="dispatch")
 class IndexView(generic.ListView):
     model = Employee
     paginate_by = 10
